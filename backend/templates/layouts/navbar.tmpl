@@ -1,0 +1,26 @@
+{{define "navbar"}}
+
+<div id="page-wrapper" class="gray-bg">
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>Home</h2>
+            <ol class="breadcrumb">
+                    <li><a href="#"><i class="fa fa-home"></i> 首页</a></li>
+            </ol>
+        </div>
+        <div class="col-lg-2 datacenter">
+            <div class="form-group">
+                <label class="font-noraml">选择DataCenter</label>
+                <div class="input-group">
+                    <select data-placeholder="选择DataCenter..." class="chosen-select" style="width:150px;" tabindex="2">
+                        <option value="">选择</option>
+                        {{range .datacenter}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{{end}}

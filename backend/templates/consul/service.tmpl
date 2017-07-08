@@ -1,0 +1,120 @@
+
+{{template "header" .}}
+
+{{template "sidebar" .}}
+
+{{template "navbar" .}}
+
+<div class="wrapper wrapper-content animated fadeInRight" id="id-for-update">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Service</h5>
+                </div>
+                <div class="ibox-content">
+
+                    <div class="hr-line-dashed"></div>
+
+                    <div class="row">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs" id="sul">
+                                        {{range  .services}}
+                                            <li href="/admin/health/{{.Service}}/"><a data-toggle="tab" href="#{{.Service}}" >{{.Service}}</a></li>
+                                        {{end}}
+                                    </ul>
+                                    <div class="tab-content">
+                                        {{range  .services}}
+                                            <div id="{{.Service}}" class="tab-pane animated fadeInRight">
+                                                <div class="panel-body">
+
+                                                </div>
+                                            </div>
+                                        {{end}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hr-line-dashed"></div>
+
+                    <div class="node ibox" id="node">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var lis = $("#sul > li")
+    var len=lis.length;
+    for (var i = 0; i < len; i++) {
+        lis[i].onclick=(function(i){
+            return function(){
+                dc = $.cookie("datacenter")
+                if (!dc) {
+                    swal("请先选择DataCenter", "出错了！","error")
+                    return
+                }
+                $.ajax({
+                    url: $(lis[i]).attr('href') + dc,
+                    async: false,
+                    type: "GET",
+                    dataType: 'json',
+                    data: {},
+                    success: function (ret) {
+                        callback(ret.health)
+                    },
+                    error: function (e) {
+
+                    }
+                });
+            }
+        })(i);
+    };
+    // 辣鸡
+
+    function callback(ret){
+        var html = ''
+        var obj = {};
+        if (ret.length) {
+            for (var b = 0; b < ret.length; b ++){
+                ss = ret[b].Service.Service
+                lenode = ret[b].Checks.length
+
+                  html +=  "<div class='col-md-3'>";
+                  html +=  "<div class='ibox-content product-box'>"
+                  html +=  "<div class='product-desc'><ul class='list-group'><li class='list-group-item'>Node: " + ret[b].Node.Node + "</li><li class='list-group-item'>Address: " +ret[b].Node.Address+ "</li><li class='list-group-item'>Port: " +ret[b].Service.Port+ "</li>";
+                  html +=  "<li class='list-group-item'>DataCenter: " +ret[b].Node.Datacenter+ "</li>"
+                html += "<div class='hr-line-dashed'></div>"
+                 for (var a =0; a < lenode; a++) {
+                    html +=   "<li class='list-group-item'>Service Num: " +a+ "</li>"
+                    html += "<li class='list-group-item'>CheckID: " +ret[b].Checks[a].CheckID+ "</li>"
+                     if (ret[b].Checks[a].Status == 'passing') {
+                         html += "<li class='list-group-item'>Status: " + ret[b].Checks[a].Status + "</li>"
+                     } else {
+                         html += "<li class='list-group-item critical'>Status: " + ret[b].Checks[a].Status + "</li>"
+                     }
+                     html += "<li class='list-group-item'>Name: " +ret[b].Checks[a].Name+ "</li>"
+                     html += "<li class='list-group-item'>Output: " +ret[b].Checks[a].Output+ "</li></ul>"
+                     html += "<div class='hr-line-dashed'></div>"
+                 }
+
+                html += "</div></div></div>"
+            }
+
+            $("#"+ss + " .panel-body").html("");
+            $("#"+ss + " .panel-body").append(html);
+        }
+    }
+
+</script>
+
+{{template "footer" .}}

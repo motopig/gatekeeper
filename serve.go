@@ -1,8 +1,7 @@
 package main
 
-import "github.com/motopig/gatekeeper/gate"
+import "sh-git.mana.com/sylar/gatekeeper/gate/keeper"
 
 func main() {
-	gate.Configer()
-	gate.Routers()
+	keeper.Run()
 }

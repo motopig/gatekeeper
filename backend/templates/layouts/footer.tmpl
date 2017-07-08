@@ -1,0 +1,35 @@
+{{define "footer"}}
+
+
+        <div class="footer">
+            <div class="pull-right">
+                <strong>银ICP备00001号</strong>
+            </div>
+            <div>
+                <strong>银河系殖民信息科技股份有限公司 &copy; 2016</strong>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+</body>
+
+// chosen select
+<script>
+
+    $(".chosen-select").chosen({});
+
+    $(".chosen-select").chosen().change(function(){
+        chose = $(".chosen-select").val();
+        $.cookie("datacenter",chose)
+    });
+    chosed = $.cookie("datacenter")
+    if (chosed) {$(".chosen-single > span").html(chosed);}
+</script>
+
+</html>
+
+
+{{end}}

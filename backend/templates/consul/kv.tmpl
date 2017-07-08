@@ -1,0 +1,313 @@
+
+{{template "header" .}}
+
+{{template "sidebar" .}}
+
+{{template "navbar" .}}
+
+<script src="../resources/js/plugins/footable/footable.all.min.js"></script>
+<script src="../resources/js/base64js.min.js"></script>
+<link href="../resources/css/plugins/footable/footable.core.css" rel="stylesheet">
+
+<div class="wrapper wrapper-content animated fadeInRight" id="id-for-update">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>KV</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row" id="app">
+                        <div class="col-lg-6">
+                            <div class="ibox-content">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title icons-box">
+                                        <div class="col-sm-4">
+                                            <h3 @click="goBack">[[ folder ]]</h3>
+                                        </div>
+                                        <div class="infont col-sm-2">
+                                            <a><i class="fa fa-plus-square-o" @click="add"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <input type="text" class="form-control input-sm m-b-xs" id="filter"
+                                               placeholder="Search in table">
+
+                                        <table class="footable table table-stripped" data-page-size="50" data-filter=#filter>
+                                            <thead>
+                                            <tr>
+                                                <th>Key</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            <tr @click="show($event)" v-for="kv in kvs">
+                                                <td>[[ kv ]]</td>
+                                            </tr>
+                                            </tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <td colspan="5">
+                                                    <ul class="pagination pull-right"></ul>
+                                                </td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="ibox-content">
+                                <form role="form" v-if="show_update_value" class="show_update_value">
+                                    <label>Key: </label>
+                                    <div class="input-group m-b">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary" >[[ detail.Key ]]</button>
+                                            </span>
+                                    </div>
+                                    <label>Value: </label>
+                                    <textarea rows="10" cols="20" placeholder="" class="form-control" v-model="value">[[ detail.Value ]]</textarea>
+                                    <div class="bbuton">
+                                        <button class="btn btn-sm btn-primary pull-right m-t-n-xs" @click.prevent="del" type="submit"><strong>Delete</strong></button>
+                                        <button class="btn btn-sm btn-primary pull-left m-t-n-xs" @click.prevent="save([[ detail.Key ]])" type="submit"><strong>Update</strong></button>
+                                    </div>
+                                </form>
+
+                                <form role="form" v-if="show_create_value" class="show_create_value">
+                                    <div class="form-group"><label>Create Key: </label>
+                                        <div class="input-group m-b">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary">[[ folder ]]</button>
+                                            </span>
+                                            <input type="text" class="form-control create_folder_input" v-model="key" >
+                                        </div>
+                                        <label>Value: </label>
+                                        <textarea rows="10" cols="20" placeholder="" class="form-control" v-model="value"></textarea>
+                                    </div>
+
+                                    <div class="bbuton">
+                                        <button class="btn btn-sm btn-primary pull-right m-t-n-xs" @click.prevent="del" type="submit" v-if="can_delete_folder"><strong>Delete Folder</strong></button>
+                                        <button class="btn btn-sm btn-primary pull-left m-t-n-xs" @click.prevent="save()" type="submit"><strong>Save</strong></button>
+                                    </div>
+                                </form>
+
+                                <form role="form" v-if="show_create_folder" class="show_create_folder">
+                                    <div class="form-group"><label>Create Folder: </label>
+                                        <div class="input-group m-b"><span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary">[[ folder ]]</button> </span> <input type="text" class="form-control create_value_input" v-model="key" >
+                                        </div>
+                                    </div>
+
+                                    <div class="bbuton">
+                                        <button class="btn btn-sm btn-primary pull-left m-t-n-xs" @click.prevent="save()" type="submit"><strong>Create</strong></button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    // foo table
+    $(document).ready(function() {
+        $('.footable').footable();
+    });
+
+    var vm = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+            detail: {},
+            key: "",
+            tkey: "",
+            kvs: {},
+            folder: "/",
+            lurl: "/admin/keys/",
+            show_create_value: false,
+            show_update_value: false,
+            show_create_folder: false,
+            can_delete_folder: false,
+            value: "",
+            tval: {},
+        },
+        mounted: function(){
+            // 先获取全部key list
+            this.request(this.lurl, "/")
+            // 等待0.5秒渲染foo table
+            setTimeout(function(){$(".footable-sortable").trigger("click")},500);
+        },
+        methods:{
+            // 显示kv -> value
+            show: function(obj){
+                var cur_folder = obj.target.innerText
+                url = this.lurl + cur_folder
+                this.request(url, cur_folder)
+            },
+            request: function(url, cur_folder){
+                this.$http.get(url).then(function(response){
+                    if (cur_folder.indexOf("/") >= 0 && cur_folder.charAt(cur_folder.length - 1) == "/"){
+                        this.folder = cur_folder
+                        if (response.body.kvs.length >= 1) {
+                            this.kvs = response.body.kvs
+                        } else {
+                            this.kvs = {}
+                        }
+                        // 隐藏更新kv表单
+                        this.show_update_value = false
+                        // 是否可以删除folder
+                        if (cur_folder.length > 1) {
+                            this.can_delete_folder = true
+                        } else {
+                            this.can_delete_folder = false
+                        }
+                        // 显示新建kv表单
+                        this.show_create_value = true
+                        this.value  = ""
+                        this.key    = ""
+                        this.tkey   = response.body.kvs[0]
+                    } else {
+                        response.body.kvs.Value == null ? "" : response.body.kvs.Value = this.base64Decode(response.body.kvs.Value)
+                        this.value  = response.body.kvs.Value
+                        this.detail = response.body.kvs
+                        this.tkey   = response.body.kvs.Key
+                        // 显示更新kv表单
+                        this.show_update_value = true
+                        // 隐藏新建kv表单
+                        this.show_create_value = false
+                    }
+                    // 隐藏新建folder表单
+                    this.show_create_folder = false
+                },function(response){
+                    console.info(response);
+                })
+            },
+            toSave: function(url){
+                var that = this
+                this.$http.put(url,this.tval,{
+                    emulateJSON:true
+                }).then(function(response){
+                    if (response.body.code == "0"){
+                        swal({title:"操作成功",text:"没毛病",type:"success"}
+                        ,function(isConfirm){
+                            if (isConfirm) {
+                                that.request(that.lurl+that.folder,that.folder)
+                            }
+                        })
+                    }
+                },function(response){
+                    swal({title:"操作失败",text:"华科",type:"error"}) // todo
+                })
+            },
+            // 删除kv -> key
+            del: function(){
+                if (this.isDir(this.tkey)){
+                    p = this.tkey.substring(0,this.tkey.length-1)
+                    url = this.lurl + p + "?dir=true"
+                } else {
+                    url = this.lurl + this.tkey
+                }
+
+                var that = this
+                this.$http.delete(url).then(function(response){
+                    if (response.body.code == "0") {
+                        swal("删除成功", "没毛病！","success")
+                    }
+
+                    if (that.folder == "/"){
+                        url = that.lurl
+                        tfolder = that.folder
+                    } else {
+                        tfolder = that.spliceFolder()
+                        tfolder = tfolder.join("/") + "/"
+                        url = that.lurl + tfolder
+                    }
+
+                    that.request(url,tfolder)
+                },function(response){
+                    console.info(response)
+                })
+            },
+            // 保存 && 更新kv -> value
+            save: function(buu=""){
+                // 更新
+                if (buu.length) {
+                    surl = this.lurl + buu[0][0]
+                } else {// 保存
+                    this.folder == "/" ? p = this.key : p = this.folder + this.key
+                    surl = this.lurl + p
+                }
+                this.tval = {"val":this.value}
+                this.toSave(surl)
+            },
+            // 新建kv -> value
+            add: function(){
+                // 显示新建kv表单
+                this.show_create_value = true
+                // 隐藏更新kv表单
+                this.show_update_value = false
+                // 隐藏新建folder表单
+                this.show_create_folder = false
+                this.key = ""
+                this.value = ""
+            },
+            // js base64Decode
+            base64Decode: function(string){
+                arr = base64js.toByteArray(string)
+                return Array.prototype.map.call(arr, function (byte) { return String.fromCharCode(byte) }).join('')
+            },
+            // js base64Encode
+            base64Encode: function(string){
+                ebyte = Array.prototype.map.call(string, function (k,byte) { return string.charCodeAt(k) }).join('')
+                return base64js.fromByteArray(ebyte)
+            },
+            spliceFolder: function(){
+                var a = this.folder.split("/");
+                if (this.isDir(this.folder)){
+                    a.splice(-2)//删除最后一层目录
+                } else {
+                    a.splice(-1)
+                }
+                return a
+            },
+            goBack: function(){
+                a = this.spliceFolder()
+
+                if (a.length == 0 ) {
+                    p = "/"
+                    url = this.lurl
+                } else {
+                    p = a.join("/") + "/"
+                    url = this.lurl + p
+                }
+
+                this.request(url, p)
+            },
+            isDir: function(string){
+                return string.substr(string.length-1,1) == "/";
+            },
+        },
+        watch:{
+            // 监控create input是否输入 /
+            key: function(val, oldVal){
+                if (val.indexOf("/") > 0){
+                    $(".create_value_input").val(val)
+                    this.show_create_value  = false
+                    this.show_create_folder = true
+                } else {
+                    $(".create_folder_input").val(val)
+                    this.show_create_value  = true
+                    this.show_create_folder = false
+                }
+            }
+        }
+    });
+
+</script>
+{{template "footer" .}}
+

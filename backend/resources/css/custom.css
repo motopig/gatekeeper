@@ -1,0 +1,14 @@
+
+.datacenter {
+    margin-top: 15px;
+}
+
+.critical {
+    color: darkred;
+    background-color: red;
+}
+
+.bbuton {
+    height: 30px;
+    margin-top: 10px;
+}

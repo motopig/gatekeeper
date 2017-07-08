@@ -1,0 +1,64 @@
+{{define "sidebar"}}
+
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element row">
+                    <div class="col-sm-5">
+                        <span>
+                            <img alt="image" class="img-circle" src="../resources/img/profile_small.jpg" />
+                        </span>
+                    </div>
+                    <div class="col-sm-7">
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear">
+                                <span class="block m-t-xs">
+                                    <strong class="font-bold">Keeper</strong>
+                                </span>
+                                <span class="text-muted text-xs block">
+                                    <b class="caret"></b>
+                                </span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a href="profile">设置</a></li>
+                            <li class="divider"></li>
+                            <li><a href="logout">退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+            <li>
+                <!--<a href="/">-->
+                    <!--<i class="fa fa-gears" style="width:15px;"></i>-->
+                    <!--<span class="nav-label"> Services </span> <span class="fa arrow"></span>-->
+                <!--</a>-->
+                <!--<ul class="nav collapse nav-second-level">-->
+                    <!--<li><a href="services">Services</a></li>-->
+                <!--</ul>-->
+                <a href="/admin/service?">
+                    <i class="fa fa-apple" style="width:15px;"></i>Services
+                </a>
+            </li>
+            <li>
+                <a href="/admin/nodes?">
+                    <i class="fa fa-users" style="width:15px;"></i>Nodes
+                </a>
+            </li>
+            <li>
+                <a href="/admin/kvs">
+                    <i class="fa fa-server" style="width:15px;"></i>Kv
+                </a>
+            </li>
+            <li>
+                <a href="/admin/dc?">
+                    <i class="fa fa-bank" style="width:15px;"></i>DataCenter
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+{{end}}

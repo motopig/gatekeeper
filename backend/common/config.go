@@ -1,4 +1,4 @@
-package gate
+package common
 
 import (
 	"os"
@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	iniconf config.Configer
+	Hconfig config.Configer
 )
 
-func Configer() {
+func InitConfig() {
 
 	iniFileDir, err := os.Getwd()
 
@@ -21,9 +21,10 @@ func Configer() {
 		panic("config file not found")
 	}
 
-	iniconf, err = config.NewConfig("ini", iniFilePath)
+	iniconf, err := config.NewConfig("ini", iniFilePath)
 	if err != nil {
 		panic("config file init failed")
 	}
 
+	Hconfig = iniconf
 }

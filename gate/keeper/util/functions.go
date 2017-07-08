@@ -1,6 +1,9 @@
-package gate
+package util
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
@@ -34,4 +37,11 @@ func PosToQuery(c *gin.Context) (string, error) {
 		return "", errors.New("empty post form")
 	}
 
+}
+
+func Mdfive(str string) string {
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(str))
+	cipherStr := md5Ctx.Sum(nil)
+	return hex.EncodeToString(cipherStr)
 }
